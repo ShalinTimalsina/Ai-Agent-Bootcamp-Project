@@ -26,6 +26,18 @@ class LessonResponse(LessonBase):
     progress_percent: int = 0
 
 
+class LessonPreview(BaseSchema):
+    id: int
+    course_id: int
+    slug: str
+    title: str
+    description: str
+    minutes: int
+    order_index: int
+    completed: bool = False
+    progress_percent: int = 0
+
+
 class LessonProgressUpdate(BaseSchema):
     completed: bool = True
     attempts_increment: int = Field(1, ge=0, le=50)

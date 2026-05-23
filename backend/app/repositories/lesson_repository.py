@@ -4,11 +4,19 @@ from app.db.database import get_connection, row_to_dict, rows_to_dicts
 
 
 class LessonRepository:
-    def list_lessons_for_course(self, course_id: int) -> list[dict]:
+    def list_lessons_for_course(self, course_id: int, *, search: str | None = None) -> list[dict]:
+        clauses = ['course_id = ?']
+        params: list[object] = [course_id]
+
+        if search:
+            clauses.append('(title LIKE ? OR description LIKE ? OR slug LIKE ?)')
+            like = f'%{search.strip()}%'
+            params.extend([like, like, like])
+
         with get_connection() as connection:
             rows = connection.execute(
-                'SELECT * FROM lessons WHERE course_id = ? ORDER BY order_index, id',
-                (course_id,),
+                f"SELECT * FROM lessons WHERE {' AND '.join(clauses)} ORDER BY order_index, id",
+                tuple(params),
             ).fetchall()
             return rows_to_dicts(rows)
 
